@@ -15,7 +15,7 @@ deploy:
   steps:
     - uses: actions/checkout@v4
       # make sure that tanka is installed before doing this
-      uses: BlindfoldedSurgery/actions-tanka # TODO
+    - uses: BlindfoldedSurgery/actions-tanka@main
       with:
         subcommand: apply
         environment: default
