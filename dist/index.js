@@ -24710,6 +24710,7 @@ exports["default"] = _default;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isHelpOutput = exports.executeTanka = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToTankaFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateAllowedValues = exports.getPriority = exports.findInputConfig = void 0;
 const fs = __nccwpck_require__(7147);
+const os = __nccwpck_require__(2037);
 const core = __nccwpck_require__(4426);
 const input_definitions_1 = __nccwpck_require__(5604);
 const models_1 = __nccwpck_require__(7321);
@@ -24734,7 +24735,7 @@ function validateAllowedValues(input) {
     if (input.value.allowed_values === undefined || input.value.allowed_values.length == 0) {
         return true;
     }
-    return input.value.allowed_values.some((value) => input.value.allowed_values.includes(input.value.value));
+    return input.value.allowed_values.includes(input.value.value);
 }
 exports.validateAllowedValues = validateAllowedValues;
 function sortInputs(inputs) {
@@ -24744,9 +24745,7 @@ exports.sortInputs = sortInputs;
 function populateInputConfigValues(config = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION) {
     return config.map((input) => {
         if (input.value.type === models_1.GithubActionInputType.StringArray) {
-            console.log(input.name);
             input.value.value = core.getMultilineInput(input.name);
-            console.log(input.value.value);
         }
         else {
             input.value.value = core.getInput(input.name);
@@ -24827,7 +24826,12 @@ function parseValueByType(input) {
         case models_1.GithubActionInputType.String:
             return value;
         case models_1.GithubActionInputType.StringArray:
-            let res = value.flatMap((l) => l.split(",").map((s) => s.trim()));
+            var v = input.value.value;
+            // why do I even bother with typing..
+            if (typeof (v) === "string") {
+                v = [v];
+            }
+            let res = v.flatMap((l) => l.split(",").map((s) => s.trim()));
             return res;
     }
 }
@@ -24846,9 +24850,25 @@ function handleFileInputs(inputs) {
                 throw Error(`value for ${entry.name} is empty (content for file arguments should not be empty, omit file argument instead)`);
             }
             console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
-            const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
-            entry.value.value = path;
-            return entry;
+            // we need to handle kubeconfig in a special way since tanka doesn't support a custom location
+            if (entry.name === "kubeconfig") {
+                const basePath = `${os.homedir()}/.kube/`;
+                if (!fs.existsSync(basePath)) {
+                    fs.mkdirSync(basePath);
+                }
+                const name = "config";
+                const path = basePath + name;
+                fs.writeFileSync(path, entry.value.value);
+                // recommended access mode since every user should have their own kubeconfig
+                fs.chmodSync(path, 0o600);
+                entry.value.value = path;
+                return entry;
+            }
+            else {
+                const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
+                entry.value.value = path;
+                return entry;
+            }
         }
     });
 }
@@ -24867,6 +24887,9 @@ function cleanupFiles(inputs) {
 exports.cleanupFiles = cleanupFiles;
 function inputsToTankaFlags(inputs) {
     return inputs.map((input) => {
+        if (input.name === "kubeconfig") {
+            return undefined;
+        }
         const flag = `--${input.name.replace(/_/g, "-")}`;
         if (input.value.value === undefined) {
             throw Error(`value for ${input.name} is not set`);
@@ -25151,7 +25174,6 @@ function writeTmpfile(content, filenameLength = 64) {
     const name = randomName(filenameLength);
     const path = `${BASE_PATH}/${name}`;
     fs.writeFileSync(path, content);
-    // recommended access mode since every user should have their own kubeconfig
     fs.chmodSync(path, 0o600);
     return path;
 }
