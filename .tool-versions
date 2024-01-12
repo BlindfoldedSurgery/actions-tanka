@@ -1,5 +1,2 @@
-nodejs 19.9.0
+nodejs 20.10.0
 yarn 1.22.19
-tanka 0.26.0
-jb 0.5.1
-jsonnet 0.20.0
