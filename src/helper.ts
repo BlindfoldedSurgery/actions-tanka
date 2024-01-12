@@ -1,4 +1,5 @@
 const fs = require('fs');
+const os = require('os');
 const core = require('@actions/core');
 import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "./input_definitions";
 import { GithubActionInputEntry, GithubActionInputType, TankaSubcommand } from "./models";
@@ -149,7 +150,7 @@ export function handleFileInputs(inputs: GithubActionInputEntry[]): GithubAction
             console.info(`handle value from ${entry.name} as file content (generating temporary file)`)
             // we need to handle kubeconfig in a special way since tanka doesn't support a custom location
             if (entry.name === "kubeconfig") {
-                const basePath = "${HOME}/.kube/"
+                const basePath = `${os.homedir()}/.kube/`
                 if (!fs.existsSync(basePath)) {
                     fs.mkdirSync(basePath);
                 }
