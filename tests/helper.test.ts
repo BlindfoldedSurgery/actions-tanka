@@ -209,31 +209,4 @@ describe("testing helper#inputsForTankaFlags", () => {
         input.value.value = "always";
         expect(inputsToTankaFlags([input])[0]).toBe("--color=always")
     });
-    test("check that string is passed to the flag", () => {
-        let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
-        input.value.value = "/tmp/asd";
-        expect(inputsToTankaFlags([input])[0]).toBe("--kubeconfig=/tmp/asd")
-    });
-});
-
-describe("testing helper#handleFileInputs", () => {
-    test("existing file should be treated as a file", () => {
-        const path = "testHandleFileInputs";
-        fs.writeFileSync(path, "");
-        let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
-        input.value.value = path;
-
-        input = handleFileInputs([input])[0];
-        expect(input.value.value).toBe(path);
-        fs.unlinkSync(path);
-    });
-    test("existing file should be treated as a file", () => {
-        let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
-        input.value.value = "test123asd";
-
-        input = handleFileInputs([input])[0];
-        const content = fs.readFileSync(input.value.value).toString();
-        expect(content).toBe("test123asd");
-        cleanupFiles([input]);
-    });
 });

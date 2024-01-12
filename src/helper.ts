@@ -124,7 +124,7 @@ export function parseValueByType(input: GithubActionInputEntry): string | string
         case GithubActionInputType.StringArray:
             var v: string[] = (<string[]>input.value.value);
             // why do I even bother with typing..
-            if (typeof(v) === "string") {
+            if (typeof (v) === "string") {
                 v = [v];
             }
             let res: string[] = v.flatMap((l) => l.split(",").map((s) => s.trim()));
@@ -147,9 +147,26 @@ export function handleFileInputs(inputs: GithubActionInputEntry[]): GithubAction
             }
 
             console.info(`handle value from ${entry.name} as file content (generating temporary file)`)
-            const path = writeTmpfile(<string>entry.value.value);
-            entry.value.value = path;
-            return entry;
+            // we need to handle kubeconfig in a special way since tanka doesn't support a custom location
+            if (entry.name === "kubeconfig") {
+                const basePath = "${HOME}/.kube/"
+                if (!fs.existsSync(basePath)) {
+                    fs.mkdirSync(basePath);
+                }
+
+                const name = "config";
+                const path = basePath + name;
+                fs.writeFileSync(path, <string>entry.value.value);
+                // recommended access mode since every user should have their own kubeconfig
+                fs.chmodSync(path, 0o600);
+                entry.value.value = path;
+
+                return entry;
+            } else {
+                const path = writeTmpfile(<string>entry.value.value);
+                entry.value.value = path;
+                return entry;
+            }
         }
     })
 }

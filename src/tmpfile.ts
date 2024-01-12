@@ -19,7 +19,6 @@ export function writeTmpfile(content: string, filenameLength: number = 64): stri
     const name = randomName(filenameLength);
     const path = `${BASE_PATH}/${name}`;
     fs.writeFileSync(path, content);
-    // recommended access mode since every user should have their own kubeconfig
     fs.chmodSync(path, 0o600);
 
     return path;
