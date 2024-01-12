@@ -1,0 +1,8 @@
+export INPUT_SUBCOMMAND=apply
+export INPUT_ENVIRONMENT=default
+export INPUT_AUTO_APPROVE=always
+export INPUT_COLOR=never
+export INPUT_DRY_RUN=none
+export INPUT_LOG_LEVEL=info
+export INPUT_ENVIRONMENTS_PATH=environments
+export INPUT_TLA_STR='A=1\nB=2,C=2'

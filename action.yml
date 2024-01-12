@@ -1,0 +1,81 @@
+name: "tanka"
+branding:
+  icon: "arrow-up-circle"
+  color: blue
+description: 'interact with tanka (tk)'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+inputs:
+  # custom flags
+  subcommand:
+    description: "subcommand to use"
+    required: false
+  raw_command:
+    description: "pass this string directly to the tk executable without any validation"
+    required: false
+  # global flags
+  version:
+    description: "prints the current version (e.g. '2023/12/14 20:59:13 tk version v0.26.0')"
+    required: false
+  kubeconfig:
+    description: "the kubeconfig content (automatically written to $HOME/.kube/config) or the path to the kubeconfig file"
+    required: false
+  # subcommand specific flags
+  # general
+  environment:
+    description: "name of the environment (this action will prepend the environment_path automatically)"
+    required: false
+  environments_path:
+    description: "path to the environments (default: 'environments')"
+    required: false
+    default: "environments"
+  # apply
+  apply_strategy:
+    description: "force the apply strategy to use. Automatically chosen if not set."
+    required: false
+  auto_approve:
+    description: "skip interactive approval. Only for automation! Allowed values: 'always', 'never', 'if-no-changes' (default 'always')"
+    required: false
+    default: "always"
+  color:
+    description: "controls color in diff output, must be 'auto', 'always', or 'never' (default 'never')"
+    required: false
+    default: "never"
+  diff_strategy:
+    description: "force the diff strategy to use. Automatically chosen if not set."
+    required: false
+  dry_run:
+    description: "--dry-run parameter to pass down to kubectl, must be 'none', 'server', or 'client'"
+    required: false
+  ext_code:
+    description: "Set code value of extVar (Format: 'key=<code>,key2=<code2>')"
+    required: false
+  ext_str:
+    description: "Set string value of extVar (Format: 'key=value,key2=value2')"
+    required: false
+  force:
+    description: "force applying (kubectl apply --force)"
+    required: false
+  log_level:
+    description: "possible values: disabled, fatal, error, warn, info, debug, trace (default 'info')"
+    required: false
+    default: "info"
+  max_stack:
+    description: "Jsonnet VM max stack. The default value is the value set in the go-jsonnet library. Increase this if you get: max stack frames exceeded"
+    required: false
+  name:
+    description: "string that only a single inline environment contains in its name"
+    required: false
+  target:
+    description: "Regex filter on '<kind>/<name>'. See https://tanka.dev/output-filtering"
+    required: false
+  tla_code:
+    description: "Set code value of top level function (Format: 'key=<code>,key2=<code2>')"
+    required: false
+  tla_str:
+    description: "Set string value of top level function (Format: 'key=value,key2=value2')"
+    required: false
+  validate:
+    description: "validation of resources (kubectl --validate=false) (default true)"
+    required: false

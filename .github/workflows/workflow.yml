@@ -1,0 +1,16 @@
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+
+name: Workflow
+
+jobs:
+  build:
+    name: unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: asdf-vm/actions/install@v3
+      - run: yarn install
+      - run: yarn test
