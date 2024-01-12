@@ -186,6 +186,10 @@ export function cleanupFiles(inputs: GithubActionInputEntry[]) {
 
 export function inputsToTankaFlags(inputs: GithubActionInputEntry[]): string[] {
     return <string[]>inputs.map((input: GithubActionInputEntry) => {
+        if (input.name === "kubeconfig") {
+            return undefined;
+        }
+
         const flag = `--${input.name.replace(/_/g, "-")}`
 
         if (input.value.value === undefined) {
